@@ -1,4 +1,4 @@
-from src.schemas.cart import create_cart , response_cart , update_cart , delete_cart
+from src.schemas.cart import create_cart, response_cart, update_cart_schema, delete_cart
 from src.models.cart import Cart
 from src.models.product import Product
 from fastapi import HTTPException

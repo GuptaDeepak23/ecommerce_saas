@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from src.config.database import dbsession
 from src.models.user import User
 from src.utils.security import JWT_TYPE, SECRET_KEY
-from src.models.roles import Role
+from src.models.tenant_membership import TenantMembership
 
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/users/login")
 
@@ -27,3 +27,22 @@ def get_current_user(db: dbsession, token: str = Depends(oauth2_bearer)):
 
     return user
 
+def get_current_tenant_admin(db: dbsession, token: str = Depends(oauth2_bearer)):
+    user = get_current_user(db, token)
+    membership = (
+        db.query(TenantMembership)
+        .filter(
+            TenantMembership.user_id == user.id,
+            TenantMembership.role.in_(["OWNER", "ADMIN"])
+        )
+        .first()
+    )
+    if not membership:
+        raise HTTPException(status_code=403, detail="Forbidden: You are not an admin of any store")
+    return membership
+
+def require_superadmin(db: dbsession, token: str = Depends(oauth2_bearer)):
+    user = get_current_user(db, token)
+    if not user.is_superadmin:
+        raise HTTPException(status_code=403, detail="Forbidden: Superadmin access required")
+    return user

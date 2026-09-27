@@ -4,23 +4,24 @@ from fastapi import HTTPException
 from src.schemas.product import create_productP , update_product , response_product
 
 
-def create_pro(db , request : create_productP):
+def create_pro(db , request : create_productP , tenant_id):
     prod = Product(
         name = request.name,
         price = request.price,
         stock = request.stock,
-        category_id = request.category_id
+        category_id = request.category_id,
+        tenant_id = tenant_id
     )
     db.add(prod)
     db.commit()
     db.refresh(prod)
     return prod
     
-def get_all_pro(db):
-    return db.query(Product).all()
+def get_all_pro(db , tenant_id):
+    return db.query(Product).filter(Product.tenant_id == tenant_id).all()
 
-def update_pro(db , id , request):
-    check = db.query(Product).filter(Product.id == id).first()
+def update_pro(db , id , request , tenant_id):
+    check = db.query(Product).filter(Product.id == id , Product.tenant_id == tenant_id).first()
     if not check:
         raise HTTPException(status_code=404 , detail = "Product not found")
     

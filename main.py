@@ -5,10 +5,23 @@ from src.routes.category import router as category_router
 from src.routes.product import router as product_router
 from src.routes.cart import router as cart_router
 from src.routes.superadmin import router as superadmin_router
+from src.routes.tenant import router as tenant_router
+from src.routes.order import router as order_router
+from src.routes.payment import router as payment_router
 
 
 
-app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="SaaS Ecommerce API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind = engine)
 
@@ -21,3 +34,7 @@ app.include_router(category_router)
 app.include_router(product_router)
 app.include_router(cart_router)
 app.include_router(superadmin_router)
+app.include_router(tenant_router)
+app.include_router(order_router)
+app.include_router(payment_router)
+
